@@ -29,8 +29,6 @@
     <div class="container">
         <a class="navbar-brand" href="{% url 'index' %}">GeekShop</a>
 
-        <div style="color: white; font-size: 16px;">{% now "d.m.Y" %}</div> <!-- Второй пункт в задании -->
-
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive"
                 aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -38,13 +36,12 @@
         <div class="collapse navbar-collapse" id="navbarResponsive">
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'products:index' %}">Каталог <i class="fas fa-shopping-bag"></i> </a>
+                    <a class="nav-link" href="{% url 'products:index' %}">Каталог <i class="fas fa-shopping-bag"></i>
+                    </a>
                 </li>
+                {% if user.is_authenticated %}
                 <li class="nav-item">
-                    <a class="nav-link" href="auth/login.html">Войти <i class="fas fa-sign-in-alt"></i></a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="auth/profile.html">Валерий П.
+                    <a class="nav-link" href="auth/profile.html">{{user.username}}
                         <i class="fas fa-user-circle"></i>
                     </a>
                 </li>
@@ -54,8 +51,14 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Выйти <i class="fas fa-sign-out-alt"></i></a>
+                    <a class="nav-link" href="{% url 'users:logout' %}">Выйти <i class="fas fa-sign-out-alt"></i></a>
                 </li>
+                {% else %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'users:login' %}">Войти <i class="fas fa-sign-in-alt"></i></a>
+                </li>
+                {% endif %}
+
             </ul>
         </div>
     </div>
