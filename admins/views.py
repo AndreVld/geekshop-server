@@ -16,54 +16,115 @@ def index(request):
     return render(request, 'admins/index.html', context)
 
 
-@user_passes_test(lambda u: u.is_staff)
-def admin_users(request):
-    context = {
-        'title': 'Ползователи',
-        'users': User.objects.all()}
-    return render(request, 'admins/admin-users-read.html', context)
+class UsersListView(ListView):
+    model = User
+    template_name = 'admins/admin-users-read.html'
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super(UsersListView, self).get_context_data(object_list=None, **kwargs)
+        context['title'] = 'Ползователи'
+        return context
+
+    @method_decorator(user_passes_test(lambda u: u.is_staff))
+    def dispatch(self, request, *args, **kwargs):
+        return super(UsersListView, self).dispatch(request, *args, **kwargs)
 
 
-@user_passes_test(lambda u: u.is_staff)
-def admin_users_create(request):
-    if request.method == 'POST':
-        form = UserAdminRegistrationForm(data=request.POST, files=request.FILES)
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(reverse('admins:admin_users'))
-    else:
-        form = UserAdminRegistrationForm()
-    context = {
-        'title': 'Создание ползователя',
-        'form': form,
-    }
-    return render(request, 'admins/admin-users-create.html', context)
+# @user_passes_test(lambda u: u.is_staff)
+# def admin_users(request):
+#     context = {
+#         'title': 'Ползователи',
+#         'users': User.objects.all()}
+#     return render(request, 'admins/admin-users-read.html', context)
 
 
-@user_passes_test(lambda u: u.is_staff)
-def admin_users_update(request, pk):
-    selected_user = User.objects.get(id=pk)
-    if request.method == 'POST':
-        form = UserAdminProfileForm(instance=selected_user, data=request.POST)
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect(reverse('admins:admin_users'))
+class UsersCreateView(CreateView):
+    model = User
+    form_class = UserAdminRegistrationForm
+    template_name = 'admins/admin-users-create.html'
+    success_url = reverse_lazy('admins:admin_users')
 
-    form = UserAdminProfileForm(instance=selected_user)
-    context = {
-        'title': 'Редактирование ползователя',
-        'form': form,
-        'selected_user': selected_user,
-    }
-    return render(request, 'admins/admin-users-update-delete.html', context)
+    def get_context_data(self, **kwargs):
+        context = super(UsersCreateView, self).get_context_data(**kwargs)
+        context['title'] = 'Создание ползователя'
+        return context
+
+    @method_decorator(user_passes_test(lambda u: u.is_staff))
+    def dispatch(self, request, *args, **kwargs):
+        return super(UsersCreateView, self).dispatch(request, *args, **kwargs)
 
 
-@user_passes_test(lambda u: u.is_staff)
-def admin_users_remove(request, pk):
-    user = User.objects.get(id=pk)
-    user.is_active = False
-    user.save()
-    return HttpResponseRedirect(reverse('admins:admin_users'))
+# @user_passes_test(lambda u: u.is_staff)
+# def admin_users_create(request):
+#     if request.method == 'POST':
+#         form = UserAdminRegistrationForm(data=request.POST, files=request.FILES)
+#         if form.is_valid():
+#             form.save()
+#             return HttpResponseRedirect(reverse('admins:admin_users'))
+#     else:
+#         form = UserAdminRegistrationForm()
+#     context = {
+#         'title': 'Создание ползователя',
+#         'form': form,
+#     }
+#     return render(request, 'admins/admin-users-create.html', context)
+
+
+class UsersUpdateView(UpdateView):
+    model = User
+    form_class = UserAdminProfileForm
+    template_name = 'admins/admin-users-update-delete.html'
+    success_url = reverse_lazy('admins:admin_users')
+
+    def get_context_data(self, **kwargs):
+        context = super(UsersUpdateView, self).get_context_data(**kwargs)
+        context['title'] = 'Редактирование ползователя'
+        return context
+
+    @method_decorator(user_passes_test(lambda u: u.is_staff))
+    def dispatch(self, request, *args, **kwargs):
+        return super(UsersUpdateView, self).dispatch(request, *args, **kwargs)
+
+
+# @user_passes_test(lambda u: u.is_staff)
+# def admin_users_update(request, pk):
+#     selected_user = User.objects.get(id=pk)
+#     if request.method == 'POST':
+#         form = UserAdminProfileForm(instance=selected_user, data=request.POST)
+#         if form.is_valid():
+#             form.save()
+#             return HttpResponseRedirect(reverse('admins:admin_users'))
+#
+#     form = UserAdminProfileForm(instance=selected_user)
+#     context = {
+#         'title': 'Редактирование ползователя',
+#         'form': form,
+#         'selected_user': selected_user,
+#     }
+#     return render(request, 'admins/admin-users-update-delete.html', context)
+
+class UserDeleteView(DeleteView):
+    model = User
+    template_name = 'admins/admin-users-update-delete.html'
+    success_url = reverse_lazy('admins:admin_users')
+
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        self.object.is_active = False
+        self.object.save()
+        return HttpResponseRedirect(self.get_success_url())
+
+    @method_decorator(user_passes_test(lambda u: u.is_staff))
+    def dispatch(self, request, *args, **kwargs):
+        return super(UserDeleteView, self).dispatch(request, *args, **kwargs)
+
+
+# @user_passes_test(lambda u: u.is_staff)
+# def admin_users_remove(request, pk):
+#     user = User.objects.get(id=pk)
+#     user.is_active = False
+#     user.save()
+#     return HttpResponseRedirect(reverse('admins:admin_users'))
 
 
 class CategoryListView(ListView):
