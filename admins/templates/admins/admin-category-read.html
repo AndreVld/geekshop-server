@@ -19,7 +19,7 @@
                                 <th>Описание</th>
                             </tr>
                             </thead>
-                            {% for category in categories %}
+                            {% for category in object_list %}
                                 <tr>
                                     <td><a href="{% url 'admins:admin_category_update' category.id %}"
                                            style="color: dodgerblue">{{ category.name }}</a></td>
