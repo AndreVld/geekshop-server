@@ -45,6 +45,12 @@
                         <i class="fas fa-user-circle"></i>
                     </a>
                 </li>
+                {% if basket %}
+                <a class="nav-link" href="{% url 'users:profile' user.id %}">{{ basket.0.total_sum }}
+                    ({{ basket.0.total_quantity }}шт)
+                        <i class="fa fa-shopping-basket"></i>
+                    </a>
+                {% endif %}
                 {% if user.is_staff or user.is_superuser %}
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'admins:index' %}">

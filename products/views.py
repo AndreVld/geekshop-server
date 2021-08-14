@@ -1,12 +1,12 @@
 from django.shortcuts import render
 from django.views.generic import ListView, TemplateView
 
-from common.views import DataMixin
+from common.views import ContextMixin
 from products.models import Product, ProductCategory
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 
-class IndexView(DataMixin, TemplateView):
+class IndexView(ContextMixin, TemplateView):
     template_name = 'products/index.html'
     title = 'GeekShop'
 
@@ -18,7 +18,7 @@ class IndexView(DataMixin, TemplateView):
 #     return render(request, 'products/index.html', context)
 
 
-class ProductsView(DataMixin, ListView):
+class ProductsView(ContextMixin, ListView):
     template_name = 'products/products.html'
     model = Product
     paginate_by = 3

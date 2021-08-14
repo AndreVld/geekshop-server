@@ -6,7 +6,7 @@ from django.contrib import auth, messages
 from django.urls import reverse, reverse_lazy
 from django.views.generic import CreateView, UpdateView
 
-from common.views import DataMixin
+from common.views import ContextMixin
 from geekshop import settings
 from users.forms import UserLoginForm, UserRegistrationForm, UserProfileForm
 from baskets.models import Basket
@@ -38,7 +38,7 @@ def verify(request, email, activation_key):
         return HttpResponseRedirect(reverse('index'))
 
 
-class LoginUserView(DataMixin, LoginView):
+class LoginUserView(ContextMixin, LoginView):
     template_name = 'users/login.html'
     form_class = UserLoginForm
     title = 'GeekShop - Авторизация'
@@ -63,7 +63,7 @@ class LoginUserView(DataMixin, LoginView):
 #     return render(request, 'users/login.html', context)
 
 
-class RegistrationView(DataMixin, CreateView):
+class RegistrationView(ContextMixin, CreateView):
     model = User
     form_class = UserRegistrationForm
     template_name = 'users/registration.html'
@@ -91,7 +91,7 @@ class RegistrationView(DataMixin, CreateView):
 #     return render(request, 'users/registration.html', context)
 
 
-class ProfileUserView(DataMixin, UpdateView):
+class ProfileUserView(ContextMixin, UpdateView):
     form_class = UserProfileForm
     template_name = 'users/profile.html'
     model = User
