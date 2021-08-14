@@ -1,15 +1,41 @@
+from django.contrib.auth import login
 from django.contrib.auth.views import LoginView, LogoutView
+from django.core.mail import send_mail
 from django.shortcuts import render, HttpResponseRedirect
 from django.contrib import auth, messages
 from django.urls import reverse, reverse_lazy
 from django.views.generic import CreateView, UpdateView
 
 from common.views import DataMixin
+from geekshop import settings
 from users.forms import UserLoginForm, UserRegistrationForm, UserProfileForm
 from baskets.models import Basket
 from django.contrib.auth.decorators import login_required
 
 from users.models import User
+
+
+def send_verify_email(user):
+    verify_link = reverse('users:verify', args=(user.email, user.activation_key))
+    title = f'Подтверждение учетной записи {user.username}'
+    message = f'Для активации учетной записи {user.username} пройдите по ссылке {settings.DOMAIN_NAME}{verify_link}'
+    return send_mail(title, message, settings.EMAIL_HOST_USER, (user.email,), fail_silently=False)
+
+
+def verify(request, email, activation_key):
+    try:
+        user = User.objects.get(email=email)
+        if user.is_activation_key_not_expired() and user.activation_key == activation_key:
+            user.is_active = True
+            user.save()
+            login(request, user)
+            return render(request, 'users/verification.html')
+        else:
+            print(f'error activation user: {user}')
+            return render(request, 'users/verification.html')
+    except Exception as err:
+        print(f'error activation user : {err.args}')
+        return HttpResponseRedirect(reverse('index'))
 
 
 class LoginUserView(DataMixin, LoginView):
@@ -41,9 +67,12 @@ class RegistrationView(DataMixin, CreateView):
     model = User
     form_class = UserRegistrationForm
     template_name = 'users/registration.html'
-    success_url = reverse_lazy('users:login')
-    success_message = 'Вы успешно зарегистрировались'
     title = 'GeekShop - Регистрация'
+
+    def form_valid(self, form):
+        user = form.save()
+        send_verify_email(user)
+        return HttpResponseRedirect(reverse('index'))
 
 
 # def registration(request):
@@ -93,8 +122,6 @@ class ProfileUserView(DataMixin, UpdateView):
 #         'baskets': Basket.objects.filter(user=request.user)
 #     }
 #     return render(request, 'users/profile.html', context)
-#
-#
 
 class UserLogoutView(LogoutView):
     pass
