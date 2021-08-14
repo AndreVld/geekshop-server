@@ -1,5 +1,6 @@
 from django.contrib.auth import login
 from django.contrib.auth.views import LoginView, LogoutView
+from django.contrib.messages.views import SuccessMessageMixin
 from django.core.mail import send_mail
 from django.shortcuts import render, HttpResponseRedirect
 from django.contrib import auth, messages
@@ -63,16 +64,18 @@ class LoginUserView(ContextMixin, LoginView):
 #     return render(request, 'users/login.html', context)
 
 
-class RegistrationView(ContextMixin, CreateView):
+class RegistrationView(ContextMixin, SuccessMessageMixin, CreateView):
     model = User
     form_class = UserRegistrationForm
     template_name = 'users/registration.html'
     title = 'GeekShop - Регистрация'
+    success_url = reverse_lazy('index')
+    success_message = 'Электронное письмо для подтверждения аккаунта отправленно на вашу почту!'
 
     def form_valid(self, form):
         user = form.save()
         send_verify_email(user)
-        return HttpResponseRedirect(reverse('index'))
+        return super().form_valid(form)
 
 
 # def registration(request):
