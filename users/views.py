@@ -1,26 +1,16 @@
 from django.contrib.auth import login
 from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.messages.views import SuccessMessageMixin
-from django.core.mail import send_mail
 from django.shortcuts import render, HttpResponseRedirect
 from django.contrib import auth, messages
 from django.urls import reverse, reverse_lazy
 from django.views.generic import CreateView, UpdateView
-
 from common.views import ContextMixin
-from geekshop import settings
 from users.forms import UserLoginForm, UserRegistrationForm, UserProfileForm
 from baskets.models import Basket
 from django.contrib.auth.decorators import login_required
 
 from users.models import User
-
-
-def send_verify_email(user):
-    verify_link = reverse('users:verify', args=(user.email, user.activation_key))
-    title = f'Подтверждение учетной записи {user.username}'
-    message = f'Для активации учетной записи {user.username} пройдите по ссылке {settings.DOMAIN_NAME}{verify_link}'
-    return send_mail(title, message, settings.EMAIL_HOST_USER, (user.email,), fail_silently=False)
 
 
 def verify(request, email, activation_key):
@@ -45,6 +35,38 @@ class LoginUserView(ContextMixin, LoginView):
     title = 'GeekShop - Авторизация'
 
 
+class RegistrationView(ContextMixin, SuccessMessageMixin, CreateView):
+    model = User
+    form_class = UserRegistrationForm
+    template_name = 'users/registration.html'
+    title = 'GeekShop - Регистрация'
+    success_url = reverse_lazy('index')
+    success_message = 'Электронное письмо для подтверждения аккаунта отправленно на вашу почту!'
+
+    def form_valid(self, form):
+        response = super(RegistrationView, self).form_valid(form)
+        form.send_verify_email()
+        return response
+
+
+class ProfileUserView(ContextMixin, UpdateView):
+    form_class = UserProfileForm
+    template_name = 'users/profile.html'
+    model = User
+    title = 'GeekShop - Личный кабинет'
+
+    def get_success_url(self):
+        return reverse_lazy('users:profile', args=(self.object.id,))
+
+    def get_context_data(self, **kwargs):
+        context = super(ProfileUserView, self).get_context_data(**kwargs)
+        context['baskets'] = Basket.objects.filter(user=self.object)
+        return context
+
+
+class UserLogoutView(LogoutView):
+    pass
+
 # def login(request):
 #     if request.method == 'POST':
 #         form = UserLoginForm(data=request.POST)
@@ -63,21 +85,6 @@ class LoginUserView(ContextMixin, LoginView):
 #     }
 #     return render(request, 'users/login.html', context)
 
-
-class RegistrationView(ContextMixin, SuccessMessageMixin, CreateView):
-    model = User
-    form_class = UserRegistrationForm
-    template_name = 'users/registration.html'
-    title = 'GeekShop - Регистрация'
-    success_url = reverse_lazy('index')
-    success_message = 'Электронное письмо для подтверждения аккаунта отправленно на вашу почту!'
-
-    def form_valid(self, form):
-        user = form.save()
-        send_verify_email(user)
-        return super().form_valid(form)
-
-
 # def registration(request):
 #     if request.method == 'POST':
 #         form = UserRegistrationForm(data=request.POST)
@@ -92,22 +99,6 @@ class RegistrationView(ContextMixin, SuccessMessageMixin, CreateView):
 #         'form': form,
 #     }
 #     return render(request, 'users/registration.html', context)
-
-
-class ProfileUserView(ContextMixin, UpdateView):
-    form_class = UserProfileForm
-    template_name = 'users/profile.html'
-    model = User
-    title = 'GeekShop - Личный кабинет'
-
-    def get_success_url(self):
-        return reverse_lazy('users:profile', args=(self.object.id,))
-
-    def get_context_data(self, **kwargs):
-        context = super(ProfileUserView, self).get_context_data(**kwargs)
-        context['baskets'] = Basket.objects.filter(user=self.object)
-        return context
-
 
 # @login_required
 # def profile(request):
@@ -125,9 +116,6 @@ class ProfileUserView(ContextMixin, UpdateView):
 #         'baskets': Basket.objects.filter(user=request.user)
 #     }
 #     return render(request, 'users/profile.html', context)
-
-class UserLogoutView(LogoutView):
-    pass
 
 # def logout(request):
 #     auth.logout(request)

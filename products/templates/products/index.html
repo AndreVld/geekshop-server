@@ -23,7 +23,10 @@
                 </button>
                 {% if messages %}
                 {% for message in messages %}
-                <p>{{message}}</p>
+                <div class="alert
+                 alert-success alert-dismissible fade show" role="alert" style="margin-top: 50px;">
+                    {{message}}
+                </div>
                 {% endfor %}
                 {% endif %}
             </div>
