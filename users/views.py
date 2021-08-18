@@ -6,7 +6,7 @@ from django.contrib import auth, messages
 from django.urls import reverse, reverse_lazy
 from django.views.generic import CreateView, UpdateView
 from common.views import ContextMixin
-from users.forms import UserLoginForm, UserRegistrationForm, UserProfileForm
+from users.forms import UserLoginForm, UserRegistrationForm, UserProfileForm, UserProfileInfoForm
 from baskets.models import Basket
 from django.contrib.auth.decorators import login_required
 
@@ -51,9 +51,28 @@ class RegistrationView(ContextMixin, SuccessMessageMixin, CreateView):
 
 class ProfileUserView(ContextMixin, UpdateView):
     form_class = UserProfileForm
+    info_form = UserProfileInfoForm
     template_name = 'users/profile.html'
     model = User
     title = 'GeekShop - Личный кабинет'
+
+    def get(self, request, *args, **kwargs):
+        super(ProfileUserView, self).get(request, *args, **kwargs)
+        form = self.form_class(instance=request.user)
+        user_info_form = self.info_form(instance=request.user.userprofileinfo)
+        context = self.get_context_data(**kwargs)
+        context['form'] = form
+        context['user_info_form'] = user_info_form
+        return self.render_to_response(context)
+
+    def post(self, request, *args, **kwargs):
+        super(ProfileUserView, self).post(request, *args, **kwargs)
+        form = self.form_class(request.POST, request.FILES, instance=request.user)
+        user_info_form = self.info_form(request.POST, instance=request.user.userprofileinfo)
+        if form.is_valid() and user_info_form.is_valid():
+            form.save()
+            messages.success(request, 'Все измененеия сохранены.')
+        return self.render_to_response(self.get_context_data(form=form, user_info_form=user_info_form))
 
     def get_success_url(self):
         return reverse_lazy('users:profile', args=(self.object.id,))
