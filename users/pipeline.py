@@ -10,7 +10,6 @@ from users.models import UserProfileInfo
 
 
 def save_user_profile(backend, user, response, *args, **kwargs):
-    print(backend.name)
     if backend.name != 'vk-oauth2':
         return
 

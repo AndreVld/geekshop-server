@@ -1,0 +1,61 @@
+{% extends 'products/base.html' %}
+{% load static %}
+
+{% block css %}
+<link href="{% static 'css/profile.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+
+<div class="container">
+    <div class="h2 text-center head card-footer ">
+        Ваши заказы, {{ user.username}}
+    </div>
+    <table class="table orders_list card-footer">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Заказчик</th>
+            <th>Создан</th>
+            <th>Обновлен</th>
+            <th>Статус</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for item in object_list %}
+        {% if item.is_active %}
+        <tr>
+            <td class="card-footer ">{{ item.pk }}</td>
+            <td>{{ item.user.last_name }}  {{ item.user.first_name }}</td>
+            <td>{{ item.created|date:"Y-m-d H:i:s" }}</td>
+            <td>{{ item.updated|date:"Y-m-d H:i:s" }}</td>
+            <td>{{ item.get_status_display }}</td>
+            <td>
+                <a class="btn btn-outline-success" href="{% url 'orders:order_read' item.pk %}">
+                    посмотреть
+                </a>
+            </td>
+            <td>
+                {% if item.status == 'FM' %}
+                <a class="btn btn-outline-success" href="{% url 'orders:order_update' item.pk %}">
+                    редактировать
+                </a>
+                {% endif %}
+            </td>
+            <td>
+                {% if item.status == 'FM' %}
+                <a class="btn btn-outline-success" href="{% url 'orders:order_delete' item.pk %}">
+                    удалить
+                </a>
+                {% endif %}
+            </td>
+        </tr>
+        {% endif %}
+        {% endfor %}
+        </tbody>
+    </table>
+        <a href="{% url 'orders:order_create' %}" class="btn btn-info btn-block">
+            новый
+        </a>
+</div>
+{% endblock %}
