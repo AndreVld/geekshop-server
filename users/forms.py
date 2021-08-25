@@ -1,6 +1,12 @@
+from hashlib import sha1
+from random import random
+
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm, UserChangeForm
+from django.core.mail import send_mail
+from django.urls import reverse
 
+from geekshop import settings
 from users.models import User
 
 
@@ -32,6 +38,21 @@ class UserRegistrationForm(UserCreationForm):
     class Meta:
         model = User
         fields = ('username', 'email', 'first_name', 'last_name', 'password1', 'password2')
+
+    def save(self, commit=True):
+        user = super(UserRegistrationForm, self).save()
+        user.is_active = False
+        salt = sha1(str(random()).encode('utf-8')).hexdigest()[:8]
+        user.activation_key = sha1((user.email + salt).encode('utf-8')).hexdigest()
+        user.save()
+        return user
+
+    def send_verify_email(self):
+        user = self.save()
+        verify_link = reverse('users:verify', args=(user.email, user.activation_key))
+        title = f'Подтверждение учетной записи {user.username}'
+        message = f'Для активации учетной записи {user.username} пройдите по ссылке {settings.DOMAIN_NAME}{verify_link}'
+        return send_mail(title, message, settings.EMAIL_HOST_USER, (user.email,), fail_silently=False)
 
 
 class UserProfileForm(UserChangeForm):
