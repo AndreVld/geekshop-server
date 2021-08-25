@@ -14,7 +14,8 @@
 {% block content %}
    <div class="container">
           {% include 'orders/includes/inc_order_summary.html' %}
-       <form class="order_form" action="" method="post">
+       <div class="order_form">
+       <form  action="" method="post">
            {% csrf_token %}
            {{ form.as_p }}
            <table class="table">
@@ -57,5 +58,6 @@
            <button type="submit" value="сохранить" class="btn btn-info btn-block">сохранить</button>
                {% include 'orders/includes/inc_order_actions.html' %}
        </form>
+           </div>
    </div>
 {% endblock %}
