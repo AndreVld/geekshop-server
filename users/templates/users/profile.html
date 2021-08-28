@@ -10,19 +10,13 @@
     <div class="row">
         <div class="col-lg-7">
             <h4 class="mt-3 mb-3">Профиль</h4>
-            {% if messages or form.errors %}
+            {% if messages %}
                 <div class="alert
                  {% if messages %} alert-success {% else %} alert-warning {% endif %}
                  alert-dismissible fade show" role="alert" style="margin-top: 50px;">
-                    {% if messages %}
                         {% for message in messages %}
                             {{ message }}
                         {% endfor %}
-                    {% else %}
-                        {% for error in form.non_field_errors %}
-                            {{ error }}
-                        {% endfor %}
-                    {% endif %}
                     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -67,6 +61,32 @@
                             <label class="small mb-1" for="{{ form.email.id_for_label }}">Адрес электронной
                                 почты</label>
                             {{ form.email }}
+                        </div>
+                    </div>
+                        <div class="form-row">
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <label class="small mb-1" for="{{ user_info_form.age.id_for_label }}">Возраст</label>
+                                    {{ user_info_form.age }}
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <label class="small mb-1" for="{{ user_info_form.gender.id_for_label }}">Пол</label>
+                                    {{ user_info_form.gender }}
+                                </div>
+                            </div>
+                        </div>
+                    <div class="form-row mb-2">
+                        <div class="col-lg-12">
+                            <label class="small mb-1" for="{{ user_info_form.about_me.id_for_label }}">О себе</label>
+                            {{ user_info_form.about_me }}
+                        </div>
+                    </div>
+                    <div class="form-row mb-2">
+                        <div class="col-lg-12">
+                            <label class="small mb-1" for="{{ user_info_form.tagline.id_for_label }}">Теги</label>
+                            {{ user_info_form.tagline }}
                         </div>
                     </div>
                 <div class="form-row">

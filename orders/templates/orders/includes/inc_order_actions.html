@@ -1,0 +1,13 @@
+
+{% if object.status == 'FM' %}
+
+       <a class="btn btn-info btn-block" href="{% url 'orders:order_forming_complete' object.pk %}">
+           совершить покупку</a>
+
+       <a class="btn btn-info btn-block" href="{% url 'orders:order_delete' object.pk %}">
+           удалить</a>
+
+{% endif %}
+   <a href="{% url 'orders:order' %}" class="btn btn-info btn-block">
+       к списку заказов</a>
+

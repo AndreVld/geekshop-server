@@ -11,13 +11,13 @@
                  {% if messages %} alert-success {% else %} alert-warning {% endif %}
                  alert-dismissible fade show" role="alert" style="margin-top: 50px;">
                     {% if messages %}
-                        {% for message in messages %}
-                            {{ message }}
-                        {% endfor %}
+                    {% for message in messages %}
+                    {{ message }}
+                    {% endfor %}
                     {% else %}
-                        {% for error in form.non_field_errors %}
-                            {{ error }}
-                        {% endfor %}
+                    {% for error in form.non_field_errors %}
+                    {{ error }}
+                    {% endfor %}
                     {% endif %}
                     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
@@ -31,8 +31,8 @@
                         <form action="{% url 'users:login' %}" method="post">
                             {% csrf_token %}
                             <div class="form-group">
-                                <label class="small mb-1" for="{{ form.username.id_for_label }}">Имя
-                                    пользователя</label>
+                                <label class="small mb-1" for="{{ form.username.id_for_label }}">
+                                    Имя пользователя</label>
                                 {{ form.username }}
                             </div>
                             <div class="form-group">
@@ -40,13 +40,25 @@
                                 {{ form.password }}
                             </div>
                             <div class="form-group d-flex align-items-center justify-content-between mt-4 mb-0">
-                                <a class="small" href="#">Забыли пароль?</a>
+                                <a class="small" href="#">
+                                    Забыли пароль?</a>
                                 <input class="btn btn-primary" type="submit" value="Авторизоваться">
                             </div>
                         </form>
                     </div>
                     <div class="card-footer text-center">
-                        <div class="small"><a href="{% url 'users:registration' %}">Нужен аккаунт? Зарегистрируйся!</a>
+                        <div class="small">
+                            <a href="{% url 'social:begin' 'github' %}">
+                                Вход через Github
+                            </a></div>
+                        <div class="small">
+                            <a href="{% url 'social:begin' 'vk-oauth2' %}">
+                                Вход через ВКонтакте
+                            </a></div>
+                    </div>
+                    <div class="card-footer text-center">
+                        <div class="small"><a href="{% url 'users:registration' %}">
+                            Нужен аккаунт? Зарегистрируйся!</a>
                         </div>
                     </div>
                 </div>
