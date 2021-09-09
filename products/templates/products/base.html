@@ -60,9 +60,9 @@
                         </ul>
                     </div>
                 </li>
-                {% if basket %}
-                <a class="nav-link" href="{% url 'users:profile' user.id %}">{{ basket.0.total_sum }}
-                    ({{ basket.0.total_quantity }}шт)
+                {% if baskets %}
+                <a class="nav-link" href="{% url 'users:profile' user.id %}">{{ baskets.0.total_sum }}
+                    ({{ baskets.0.total_quantity }}шт)
                         <i class="fa fa-shopping-basket"></i>
                     </a>
                 {% endif %}
