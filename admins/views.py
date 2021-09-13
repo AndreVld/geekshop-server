@@ -1,3 +1,5 @@
+from django.db import connection
+from django.db.models import F
 from django.shortcuts import render, HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
 from users.models import User
@@ -182,6 +184,12 @@ class CategoryCreateView(CreateView):
 #     return render(request, 'admins/admin-category-create.html', context)
 
 
+def db_profile_by_type(prefix, type, queries):
+    update_queries = list(filter(lambda x: type in x['sql'], queries))
+    print(f'db_profile {type} for {prefix}:')
+    [print(query['sql']) for query in update_queries]
+
+
 class CategoryUpdateView(UpdateView):
     model = ProductCategory
     form_class = CategoryAdminCreateForm
@@ -192,6 +200,15 @@ class CategoryUpdateView(UpdateView):
         context = super(CategoryUpdateView, self).get_context_data(**kwargs)
         context['title'] = 'Редактирование категории товара'
         return context
+
+    def form_valid(self, form):
+        if 'discount' in form.cleaned_data:
+            discount = form.cleaned_data['discount']
+            if discount:
+                self.object.product_set.update(price=F('price') * (1 - discount / 100))
+                db_profile_by_type(self.__class__, 'UPDATE', connection.queries)
+
+        return super().form_valid(form)
 
     @method_decorator(user_passes_test(lambda u: u.is_staff))
     def dispatch(self, request, *args, **kwargs):
